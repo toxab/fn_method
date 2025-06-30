@@ -1,9 +1,13 @@
 /local
+
 /node_modules
+
+
 /dist
 /build
 /log
 /public/docs
+
 
 # PHP
 vendor/
