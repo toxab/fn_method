@@ -1,0 +1,5 @@
+services:
+    App\Shared\Infrastructure\EventStore\EventStoreInterface:
+        class: App\Shared\Infrastructure\EventStore\DoctrineEventStore
+        arguments:
+            $connection: '@doctrine.dbal.default_connection'

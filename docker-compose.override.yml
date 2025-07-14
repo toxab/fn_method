@@ -22,11 +22,6 @@ services:
     ports:
       - "8028:80"
 
-###> doctrine/doctrine-bundle ###
-  database:
-    ports:
-      - "5432"
-###< doctrine/doctrine-bundle ###
 
 ###> symfony/mailer ###
   mailer:

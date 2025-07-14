@@ -3,23 +3,60 @@
 namespace App\Account\Domain\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 use App\Account\Domain\ValueObject\Currency;
 use App\Account\Domain\ValueObject\Money;
+use App\Account\Infrastructure\ApiPlatform\Dto\CreateAccountDto;
+use App\Account\Infrastructure\ApiPlatform\Dto\MoneyOperationDto;
+use App\Account\Infrastructure\ApiPlatform\StateProcessor\CreateAccountStateProcessor;
+use App\Account\Infrastructure\ApiPlatform\StateProcessor\DepositMoneyStateProcessor;
+use App\Account\Infrastructure\ApiPlatform\StateProcessor\WithdrawMoneyStateProcessor;
+use App\Account\Infrastructure\ApiPlatform\StateProvider\AccountBalanceStateProvider;
+use App\Account\Infrastructure\ApiPlatform\StateProvider\UserAccountsStateProvider;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'accounts')]
-#[ApiResource]
+#[ApiResource(
+    operations: [
+        new Get(
+            uriTemplate: '/accounts/{id}',
+            provider: AccountBalanceStateProvider::class
+        ),
+        new GetCollection(
+            uriTemplate: '/users/{userId}/accounts',
+            provider: UserAccountsStateProvider::class
+        ),
+        new Post(
+            uriTemplate: '/accounts',
+            input: CreateAccountDto::class,
+            processor: CreateAccountStateProcessor::class
+        ),
+        new Put(
+            uriTemplate: '/accounts/{id}/deposit',
+            input: MoneyOperationDto::class,
+            processor: DepositMoneyStateProcessor::class
+        ),
+        new Put(
+            uriTemplate: '/accounts/{id}/withdraw',
+            input: MoneyOperationDto::class,
+            processor: WithdrawMoneyStateProcessor::class
+        )
+    ]
+)]
 class Account
 {
     #[ORM\Id]
-    #[ORM\Column(type: 'string', length: 36)]
+    #[ORM\Column(type: 'string', length: 50)]
     private string $id;
 
-    #[ORM\Column(type: 'string', length: 36)]
+    #[ORM\Column(type: 'string', length: 50)]
     private string $userId;
 
-    #[ORM\Column(type: 'string', length: 3)]
+    #[ORM\Column(type: 'string', length: 3, enumType: Currency::class)]
     private Currency $currency;
 
     #[ORM\Column(type: 'decimal', precision: 15, scale: 2)]
@@ -59,6 +96,16 @@ class Account
     public function getBalance(): Money
     {
         return new Money($this->balance, $this->currency);
+    }
+
+    public function getCreatedAt(): \DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function getUpdatedAt(): \DateTimeImmutable
+    {
+        return $this->updatedAt;
     }
 
     public function deposit(Money $amount): void

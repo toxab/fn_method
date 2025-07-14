@@ -11,3 +11,27 @@ services:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
+
+    # Repository interfaces
+    App\User\Domain\Repository\UserRepositoryInterface:
+        alias: App\User\Infrastructure\Repository\DoctrineUserRepository
+
+    App\Account\Domain\Repository\AccountRepositoryInterface:
+        alias: App\Account\Infrastructure\Repository\DoctrineAccountRepository
+
+    # Event Store
+    App\Shared\Infrastructure\EventStore\EventStoreInterface:
+        class: App\Shared\Infrastructure\EventStore\DoctrineEventStore
+        arguments:
+            $connection: '@doctrine.dbal.default_connection'
+
+    # Event-Sourced repositories
+    App\Account\Domain\Repository\EventSourcedAccountRepositoryInterface:
+        class: App\Account\Infrastructure\Repository\EventSourcedAccountRepository
+        arguments:
+            $eventStore: '@App\Shared\Infrastructure\EventStore\EventStoreInterface'
+
+    App\User\Domain\Repository\EventSourcedUserRepositoryInterface:
+        class: App\User\Infrastructure\Repository\EventSourcedUserRepository
+        arguments:
+            $eventStore: '@App\Shared\Infrastructure\EventStore\EventStoreInterface'

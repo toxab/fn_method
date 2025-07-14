@@ -3,7 +3,9 @@ api_platform:
     version: '1.0.0'
     description: 'Educational fintech API demonstrating DDD, CQRS, and Event Sourcing'
     mapping:
-        paths: ['%kernel.project_dir%/src/Entity']
+        paths: 
+            - '%kernel.project_dir%/src/Account/Domain/Entity'
+            - '%kernel.project_dir%/src/User/Domain/Entity'
     patch_formats:
         json: ['application/merge-patch+json']
     swagger:

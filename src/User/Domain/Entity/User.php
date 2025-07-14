@@ -3,6 +3,7 @@
 namespace App\User\Domain\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use App\User\Domain\ValueObject\UserRole;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -13,7 +14,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
-    #[ORM\Column(type: 'string', length: 36)]
+    #[ORM\Column(type: 'string', length: 50)]
     private string $id;
 
     #[ORM\Column(type: 'string', length: 255, unique: true)]
@@ -22,7 +23,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'string', length: 255)]
     private string $password;
 
-    #[ORM\Column(type: 'string', length: 20)]
+    #[ORM\Column(type: 'string', length: 20, enumType: UserRole::class)]
     private UserRole $role;
 
     #[ORM\Column(type: 'datetime_immutable')]
