@@ -32,8 +32,10 @@ use Doctrine\ORM\Mapping as ORM;
         ),
         new Post(
             uriTemplate: '/accounts',
-            deserialize: false,
-            processor: CreateAccountStateProcessor::class
+            input: CreateAccountDto::class,
+            processor: CreateAccountStateProcessor::class,
+            read: false,
+            deserialize: true
         ),
         new Put(
             uriTemplate: '/accounts/{id}/deposit',

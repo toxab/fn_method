@@ -8,7 +8,7 @@ use App\Account\Application\Command\CreateAccountCommand;
 use App\Account\Application\Handler\CreateAccountHandler;
 use App\Account\Domain\Entity\Account;
 use App\Account\Domain\Repository\AccountRepositoryInterface;
-use App\Account\Domain\ValueObject\Currency;
+use App\Account\Infrastructure\ApiPlatform\Dto\CreateAccountDto;
 
 class CreateAccountStateProcessor implements ProcessorInterface
 {
@@ -17,26 +17,16 @@ class CreateAccountStateProcessor implements ProcessorInterface
         private AccountRepositoryInterface $accountRepository
     ) {}
 
-    public function process(mixed $data = null, Operation $operation = null, array $uriVariables = [], array $context = []): Account
+    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): Account
     {
-        // When deserialize: false, we need to manually get the request body
-        $request = $context['request'] ?? null;
-
-        if (!$request) {
-            throw new \RuntimeException('Request not found in context');
+        // $data should be CreateAccountDto deserialized by API Platform
+        if (!$data instanceof CreateAccountDto) {
+            throw new \InvalidArgumentException(
+                sprintf('Expected CreateAccountDto, got %s', get_debug_type($data))
+            );
         }
 
-        // Get JSON payload
-        $payload = json_decode($request->getContent(), true);
-
-        if (!isset($payload['userId']) || !isset($payload['currency'])) {
-            throw new \InvalidArgumentException('userId and currency are required');
-        }
-
-        $userId = $payload['userId'];
-        $currency = Currency::from($payload['currency']);
-
-        $command = new CreateAccountCommand($userId, $currency);
+        $command = new CreateAccountCommand($data->userId, $data->getCurrency());
 
         $accountId = $this->handler->handle($command);
 
