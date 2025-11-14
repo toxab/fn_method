@@ -1,91 +1,91 @@
 # Docker Configuration Updates
 
-## Нові файли
+## New Files
 
-### Основні конфігурації:
-- **compose.yaml** - Нова основна конфігурація (замість docker-compose.yaml)
-  - Підтримка багатьох платформ (Linux, macOS Intel, macOS Apple Silicon)
-  - Health checks для всіх сервісів
-  - Оптимізовані volumes
-  - Додано Redis та Adminer
+### Main Configurations:
+- **compose.yaml** - New main configuration (replaces docker-compose.yaml)
+  - Multi-platform support (Linux, macOS Intel, macOS Apple Silicon)
+  - Health checks for all services
+  - Optimized volumes
+  - Added Redis and Adminer
 
-- **compose.override.yaml** - Development оверрайди (автоматично)
-  - Xdebug налаштування
+- **compose.override.yaml** - Development overrides (automatic)
+  - Xdebug configuration
   - Development-friendly ports
   - Verbose logging
 
-- **compose.macos.yaml** - Спеціальні оптимізації для macOS
-  - Delegated/cached mount options для кращої I/O
-  - Named volumes для vendor/var
-  - Platform-specific settings для Apple Silicon
+- **compose.macos.yaml** - macOS-specific optimizations
+  - Delegated/cached mount options for better I/O
+  - Named volumes for vendor/var
+  - Platform-specific settings for Apple Silicon
 
-- **compose.prod.yaml** - Production конфігурація
-  - Вимкнено development tools
-  - Оптимізовано для продуктивності
-  - Посилена безпека
+- **compose.prod.yaml** - Production configuration
+  - Development tools disabled
+  - Performance optimized
+  - Enhanced security
 
-### Конфігураційні файли:
-- **.env.docker** - Template для environment variables
-- **docker/mysql/my.cnf** - MySQL оптимізації
-- **DOCKER.md** - Повна документація
-- **Makefile** - Зручні команди для роботи
+### Configuration Files:
+- **.env.docker** - Template for environment variables
+- **docker/mysql/my.cnf** - MySQL optimizations
+- **DOCKER.md** - Complete documentation
+- **Makefile** - Convenient management commands
 
-## Ключові покращення
+## Key Improvements
 
-### 1. Підтримка платформ
+### 1. Platform Support
 ```yaml
-# Автоматичне визначення платформи
+# Automatic platform detection
 platform: ${MYSQL_PLATFORM:-linux/amd64}
 
-# Mount options для різних OS
+# Mount options for different OS
 volumes:
   - .:/var/www/html${MOUNT_OPTIONS:-}
 ```
 
 ### 2. Health Checks
-Всі сервіси тепер мають health checks:
+All services now have health checks:
 - PHP-FPM
 - Nginx
 - MySQL
 - Redis
 - Mailpit
 
-### 3. Нові сервіси
-- **Redis** - для кешування та сесій
-- **Adminer** - GUI для управління БД
-- **Mailpit** - тестування email (вже було, оновлено)
+### 3. New Services
+- **Redis** - for caching and sessions
+- **Adminer** - GUI for database management
+- **Mailpit** - email testing (updated)
 
-### 4. Performance оптимізації
+### 4. Performance Optimizations
 
 #### macOS:
-- Named volumes для vendor та var
+- Named volumes for vendor and var
 - Delegated/cached mount options
-- Platform-specific MySQL образи
+- Platform-specific MySQL images
 
-#### Загальні:
-- Оптимізовані MySQL settings
-- OPcache в PHP
-- Redis для швидкого кешу
+#### General:
+- Optimized MySQL settings
+- OPcache in PHP
+- Redis for fast caching
 
 ### 5. Developer Experience
 
-#### Makefile команди:
+#### Makefile Commands:
 ```bash
-make setup          # Повне налаштування
-make setup-macos    # Налаштування для macOS
-make up             # Запустити
-make down           # Зупинити
-make logs           # Дивитись логи
-make bash           # Увійти в PHP контейнер
-make migrate        # Запустити міграції
-make test           # Запустити тести
-make es-test        # Тестувати Event Sourcing
+make setup          # Complete setup
+make setup-macos    # Setup for macOS
+make up             # Start containers
+make down           # Stop containers
+make logs           # View logs
+make bash           # Enter PHP container
+make migrate        # Run migrations
+make test           # Run tests
+make es-test        # Test Event Sourcing
 ```
 
-#### Автоматичне визначення платформи:
-Makefile автоматично визначає вашу платформу та підключає потрібні compose файли.
+#### Automatic Platform Detection:
+The Makefile automatically detects your platform and includes the appropriate compose files.
 
-## Як користуватись
+## How to Use
 
 ### Linux / WSL2:
 ```bash
@@ -95,69 +95,69 @@ make setup
 ### macOS Intel:
 ```bash
 make setup-macos
-# Або вручну:
+# Or manually:
 docker compose -f compose.yaml -f compose.macos.yaml up -d
 ```
 
 ### macOS Apple Silicon (M1/M2/M3):
 ```bash
 make setup-macos
-# Або вручну:
+# Or manually:
 docker compose -f compose.yaml -f compose.macos.yaml up -d
 ```
 
 ### Production:
 ```bash
 make prod-up
-# Або вручну:
+# Or manually:
 docker compose -f compose.yaml -f compose.prod.yaml up -d
 ```
 
-## Міграція зі старої конфігурації
+## Migration from Old Configuration
 
-### Якщо у вас працює старий docker-compose.yaml:
+### If you have the old docker-compose.yaml running:
 
-1. **Зупинити старі контейнери:**
+1. **Stop old containers:**
    ```bash
    docker compose down
    ```
 
-2. **Backup даних (опціонально):**
+2. **Backup data (optional):**
    ```bash
    docker compose exec mysql mysqldump -u root -proot fintech_db > backup.sql
    ```
 
-3. **Використати нову конфігурацію:**
+3. **Use new configuration:**
    ```bash
-   # Для macOS:
+   # For macOS:
    make setup-macos
 
-   # Для Linux:
+   # For Linux:
    make setup
    ```
 
-4. **Відновити дані (якщо потрібно):**
+4. **Restore data (if needed):**
    ```bash
    make db-restore
    ```
 
-### Volumes зберігаються!
-Названі volumes (mysql_data) залишаться, тому дані не втратяться.
+### Volumes are Preserved!
+Named volumes (mysql_data) remain intact, so no data is lost.
 
 ## Environment Variables
 
-Створіть `.env.docker.local` з вашими налаштуваннями:
+Create `.env.docker.local` with your settings:
 
 ```bash
-# Для macOS Intel:
+# For macOS Intel:
 MYSQL_PLATFORM=linux/amd64
 MOUNT_OPTIONS=:cached
 
-# Для macOS Apple Silicon:
+# For macOS Apple Silicon:
 MYSQL_PLATFORM=linux/arm64
 MOUNT_OPTIONS=:delegated
 
-# Для Linux:
+# For Linux:
 MYSQL_PLATFORM=linux/amd64
 MOUNT_OPTIONS=
 
@@ -171,35 +171,35 @@ XDEBUG_MODE=off
 ## Troubleshooting
 
 ### "Port already in use"
-Змініть порти в `.env.docker.local`:
+Change ports in `.env.docker.local`:
 ```bash
 NGINX_PORT=8029
 MYSQL_PORT=3328
 ```
 
-### Повільна робота на macOS
+### Slow Performance on macOS
 ```bash
-# Переконайтесь що використовуєте macOS файл:
+# Make sure you're using macOS compose file:
 docker compose -f compose.yaml -f compose.macos.yaml up -d
 
-# Або через Makefile (автоматично):
+# Or via Makefile (automatic):
 make up
 ```
 
-### Permission errors
+### Permission Errors
 ```bash
 docker compose exec php chown -R www-data:www-data /var/www/html/var
 ```
 
-## Що далі?
+## What's Next?
 
-1. Прочитайте [DOCKER.md](DOCKER.md) для повної документації
-2. Використовуйте `make help` для списку всіх команд
-3. Налаштуйте Xdebug у вашій IDE (інструкції в DOCKER.md)
+1. Read [DOCKER.md](DOCKER.md) for complete documentation
+2. Use `make help` for list of all commands
+3. Configure Xdebug in your IDE (instructions in DOCKER.md)
 
-## Питання?
+## Questions?
 
-Дивіться:
-- [DOCKER.md](DOCKER.md) - повна документація
-- `make help` - список команд
-- `make info` - інформація про платформу
+See:
+- [DOCKER.md](DOCKER.md) - complete documentation
+- `make help` - list of commands
+- `make info` - platform information

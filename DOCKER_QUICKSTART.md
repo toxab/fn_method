@@ -1,70 +1,70 @@
 # Docker Quick Start 🚀
 
-## Швидкий запуск за 3 хвилини
+## Quick Setup in 3 Minutes
 
-### 1️⃣ Вибрати вашу платформу:
+### 1️⃣ Choose Your Platform:
 
 #### 🐧 Linux / Windows WSL2:
 ```bash
 make setup
 ```
 
-#### 🍎 macOS (Intel або Apple Silicon):
+#### 🍎 macOS (Intel or Apple Silicon):
 ```bash
 make setup-macos
 ```
 
-### 2️⃣ Дочекатись завершення:
+### 2️⃣ Wait for Completion:
 ```bash
-# Встановляться залежності, запустяться міграції
-# Зачекайте ~2-3 хвилини
+# Dependencies will be installed and migrations will run
+# Wait approximately 2-3 minutes
 ```
 
-### 3️⃣ Готово! Відкрити в браузері:
+### 3️⃣ Done! Open in Browser:
 - **API**: http://localhost:8028/api
-- **Adminer** (БД): http://localhost:8080
+- **Adminer** (DB): http://localhost:8080
 - **Mailpit** (Email): http://localhost:8025
 
 ---
 
-## Корисні команди
+## Useful Commands
 
 ```bash
-make help          # Показати всі команди
-make ps            # Статус контейнерів
-make logs          # Дивитись логи
-make bash          # Увійти в PHP контейнер
-make es-test       # Тестувати Event Sourcing
+make help          # Show all commands
+make ps            # Container status
+make logs          # View logs
+make bash          # Enter PHP container
+make es-test       # Test Event Sourcing
 ```
 
-## Тестування Event Sourcing
+## Testing Event Sourcing
 
 ```bash
-# Запустити демо Event Sourcing
+# Run Event Sourcing demo
 make es-test
 
-# Або вручну:
+# Or manually:
 docker compose exec php bin/console app:test-event-sourcing
 ```
 
-## Підключення до БД
+## Database Connection
 
-### Через Adminer (в браузері):
-1. Відкрити http://localhost:8080
-2. Ввести:
+### Via Adminer (browser):
+1. Open http://localhost:8080
+2. Enter:
    - **Server**: `mysql`
    - **Username**: `fintech_user`
    - **Password**: `fintech_pass`
    - **Database**: `fintech_db`
 
-### Через CLI:
+### Via CLI:
 ```bash
 make mysql
-# Або:
+# Or:
 docker compose exec mysql mysql -u fintech_user -pfintech_pass fintech_db
 ```
 
-### Через TablePlus/DBeaver/etc:
+### Via TablePlus/DBeaver/etc:
 - **Host**: `localhost`
 - **Port**: `3327`
 - **User**: `fintech_user`
@@ -73,10 +73,10 @@ docker compose exec mysql mysql -u fintech_user -pfintech_pass fintech_db
 
 ## API Testing
 
-### Через swagger UI:
-Відкрити: http://localhost:8028/api
+### Via Swagger UI:
+Open: http://localhost:8028/api
 
-### Через curl:
+### Via curl:
 ```bash
 # Health check
 curl http://localhost:8028/health
@@ -85,80 +85,80 @@ curl http://localhost:8028/health
 curl http://localhost:8028/api/docs.json
 ```
 
-## Проблеми?
+## Troubleshooting
 
-### Порти зайняті?
+### Ports Already in Use?
 ```bash
-# Змінити порти
+# Change ports
 echo "NGINX_PORT=8029" >> .env.docker.local
 echo "MYSQL_PORT=3328" >> .env.docker.local
 make restart
 ```
 
-### Повільно на macOS?
+### Slow on macOS?
 ```bash
-# Переконайтесь що використовуєте macOS версію:
+# Make sure you're using macOS version:
 make setup-macos
 ```
 
-### Почати спочатку?
+### Start from Scratch?
 ```bash
 make down
-make clean  # WARNING: видаляє дані!
+make clean  # WARNING: deletes data!
 make setup
 ```
 
-## Наступні кроки
+## Next Steps
 
-📖 **Детальна документація**: [DOCKER.md](DOCKER.md)
-🔄 **Що нового**: [DOCKER_CHANGELOG.md](DOCKER_CHANGELOG.md)
-🏗️ **Архітектура**: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+📖 **Detailed Documentation**: [DOCKER.md](DOCKER.md)
+🔄 **What's New**: [DOCKER_CHANGELOG.md](DOCKER_CHANGELOG.md)
+🏗️ **Architecture**: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 
-## Команди для розробки
+## Development Commands
 
 ```bash
-# Запустити тести
+# Run tests
 make test
 
-# Очистити кеш
+# Clear cache
 make cache-clear
 
-# Створити міграцію
+# Create migration
 make migration-create
 
-# Запустити міграції
+# Run migrations
 make migrate
 
-# Бекап БД
+# Backup database
 make db-backup
 
-# Перевірити код
+# Check code style
 make cs-check
 
-# Виправити код
+# Fix code style
 make cs-fix
 ```
 
-## macOS specific
+## macOS Specific
 
-Якщо ви на macOS, Makefile автоматично:
-- Визначить вашу архітектуру (Intel vs Apple Silicon)
-- Використає оптимальні mount options
-- Створить named volumes для vendor/var
-- Налаштує правильний MySQL образ
+If you're on macOS, the Makefile automatically:
+- Detects your architecture (Intel vs Apple Silicon)
+- Uses optimal mount options
+- Creates named volumes for vendor/var
+- Configures correct MySQL image
 
 ## Production
 
 ```bash
-# Запустити в production режимі
+# Start in production mode
 make prod-up
 
-# Або вручну:
+# Or manually:
 docker compose -f compose.yaml -f compose.prod.yaml up -d
 ```
 
 ---
 
-**Все працює?** Чудово! Переходьте до розробки 🎉
+**Everything Working?** Great! Start developing 🎉
 
-**Є питання?** Дивіться [DOCKER.md](DOCKER.md) або `make help`
+**Questions?** Check [DOCKER.md](DOCKER.md) or `make help`

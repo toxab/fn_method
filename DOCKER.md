@@ -1,28 +1,28 @@
 # Docker Setup Guide
 
-Повний гайд по запуску проекту через Docker на різних платформах.
+Complete guide for running the project through Docker on different platforms.
 
-## Швидкий старт
+## Quick Start
 
 ### Linux / Windows WSL2
 ```bash
-# 1. Склонувати репозиторій
+# 1. Clone the repository
 git clone <your-repo-url>
 cd fn_method
 
-# 2. Скопіювати env файл
+# 2. Copy env file
 cp .env.docker .env.docker.local
 
-# 3. Запустити контейнери
+# 3. Start containers
 docker compose up -d
 
-# 4. Встановити залежності
+# 4. Install dependencies
 docker compose exec php composer install
 
-# 5. Запустити міграції
+# 5. Run migrations
 docker compose exec php bin/console doctrine:migrations:migrate -n
 
-# 6. Готово!
+# 6. Done!
 # API: http://localhost:8028
 # Adminer: http://localhost:8080
 # Mailpit: http://localhost:8025
@@ -30,89 +30,89 @@ docker compose exec php bin/console doctrine:migrations:migrate -n
 
 ### macOS (Intel)
 ```bash
-# 1-2. Те саме що вище
+# 1-2. Same as above
 
-# 3. Відредагувати .env.docker.local
-# Розкоментувати для macOS Intel:
+# 3. Edit .env.docker.local
+# Uncomment for macOS Intel:
 MYSQL_PLATFORM=linux/amd64
 MOUNT_OPTIONS=:cached
 
-# 4. Запустити з macOS оптимізаціями
+# 4. Start with macOS optimizations
 docker compose -f compose.yaml -f compose.macos.yaml up -d
 
-# 5-6. Те саме що вище
+# 5-6. Same as above
 ```
 
 ### macOS (Apple Silicon M1/M2/M3)
 ```bash
-# 1-2. Те саме
+# 1-2. Same as above
 
-# 3. Відредагувати .env.docker.local
-# Розкоментувати для Apple Silicon:
+# 3. Edit .env.docker.local
+# Uncomment for Apple Silicon:
 MYSQL_PLATFORM=linux/arm64
 MOUNT_OPTIONS=:delegated
 
-# 4. Запустити з macOS оптимізаціями
+# 4. Start with macOS optimizations
 docker compose -f compose.yaml -f compose.macos.yaml up -d
 
-# 5-6. Те саме
+# 5-6. Same as above
 ```
 
-## Структура файлів
+## File Structure
 
 ```
-├── compose.yaml              # Основний файл (базова конфігурація)
-├── compose.override.yaml     # Development overrides (автоматично підключається)
-├── compose.macos.yaml        # macOS оптимізації
-├── compose.prod.yaml         # Production конфігурація
-├── .env.docker               # Змінні середовища (template)
-├── .env.docker.local         # Ваші локальні налаштування (git ignored)
+├── compose.yaml              # Main file (base configuration)
+├── compose.override.yaml     # Development overrides (automatically loaded)
+├── compose.macos.yaml        # macOS optimizations
+├── compose.prod.yaml         # Production configuration
+├── .env.docker               # Environment variables (template)
+├── .env.docker.local         # Your local settings (git ignored)
 └── docker/
     ├── nginx/
-    │   └── default.conf      # Nginx конфігурація
+    │   └── default.conf      # Nginx configuration
     ├── mysql/
-    │   └── my.cnf            # MySQL конфігурація
+    │   └── my.cnf            # MySQL configuration
     └── php/
-        └── php.ini           # PHP конфігурація
+        └── php.ini           # PHP configuration
 ```
 
-## Доступні сервіси
+## Available Services
 
-| Сервіс   | Порт  | URL                        | Опис                          |
+| Service  | Port  | URL                        | Description                   |
 |----------|-------|----------------------------|-------------------------------|
-| Nginx    | 8028  | http://localhost:8028      | Веб-сервер                    |
-| MySQL    | 3327  | localhost:3327             | База даних                    |
-| Redis    | 6379  | localhost:6379             | Кеш/сесії                     |
-| Adminer  | 8080  | http://localhost:8080      | Управління БД                 |
+| Nginx    | 8028  | http://localhost:8028      | Web server                    |
+| MySQL    | 3327  | localhost:3327             | Database                      |
+| Redis    | 6379  | localhost:6379             | Cache/sessions                |
+| Adminer  | 8080  | http://localhost:8080      | Database management           |
 | Mailpit  | 8025  | http://localhost:8025      | Email testing                 |
 | Xdebug   | 9003  | localhost:9003             | Debugging                     |
 
-## Корисні команди
+## Useful Commands
 
-### Управління контейнерами
+### Container Management
 ```bash
-# Запустити всі сервіси
+# Start all services
 docker compose up -d
 
-# Зупинити всі сервіси
+# Stop all services
 docker compose down
 
-# Перезапустити конкретний сервіс
+# Restart specific service
 docker compose restart php
 
-# Подивитись логи
+# View logs
 docker compose logs -f php
 
-# Подивитись статус
+# View status
 docker compose ps
 
-# Повністю очистити (включно з volumes)
+# Complete cleanup (including volumes)
 docker compose down -v
 ```
 
-### Робота з PHP
+### Working with PHP
 ```bash
-# Виконати команду в PHP контейнері
+# Execute command in PHP container
 docker compose exec php bash
 
 # Composer
@@ -125,66 +125,66 @@ docker compose exec php bin/console list
 docker compose exec php bin/console doctrine:migrations:migrate
 docker compose exec php bin/console cache:clear
 
-# Тести
+# Tests
 docker compose exec php bin/phpunit
 ```
 
-### Робота з БД
+### Working with Database
 ```bash
-# Підключитись до MySQL
+# Connect to MySQL
 docker compose exec mysql mysql -u fintech_user -pfintech_pass fintech_db
 
-# Експорт БД
+# Export database
 docker compose exec mysql mysqldump -u root -proot fintech_db > backup.sql
 
-# Імпорт БД
+# Import database
 docker compose exec -T mysql mysql -u root -proot fintech_db < backup.sql
 
-# Через Adminer
-# Відкрити http://localhost:8080
+# Via Adminer
+# Open http://localhost:8080
 # Server: mysql
 # Username: fintech_user
 # Password: fintech_pass
 # Database: fintech_db
 ```
 
-### Event Sourcing команди
+### Event Sourcing Commands
 ```bash
-# Тестування Event Sourcing
+# Test Event Sourcing
 docker compose exec php bin/console app:test-event-sourcing
 
-# Створити користувача
+# Create user
 docker compose exec php bin/console app:create-user user@example.com password
 
-# Операції з рахунком
+# Account operations
 docker compose exec php bin/console app:deposit-money <account-id> 100.00 USD
 docker compose exec php bin/console app:withdraw-money <account-id> 50.00 USD
 docker compose exec php bin/console app:get-account-balance <account-id>
 ```
 
-## Різні середовища
+## Different Environments
 
-### Development (за замовчуванням)
+### Development (default)
 ```bash
 docker compose up -d
-# Включено: Xdebug, Adminer, Mailpit, verbose logging
+# Includes: Xdebug, Adminer, Mailpit, verbose logging
 ```
 
 ### Production
 ```bash
 docker compose -f compose.yaml -f compose.prod.yaml up -d
-# Виключено: Xdebug, development tools
-# Оптимізовано для продуктивності
+# Excludes: Xdebug, development tools
+# Optimized for performance
 ```
 
-### macOS оптимізації
+### macOS Optimizations
 ```bash
 docker compose -f compose.yaml -f compose.macos.yaml up -d
-# Використовує delegated/cached mount options
-# Named volumes для vendor та var
+# Uses delegated/cached mount options
+# Named volumes for vendor and var
 ```
 
-## Налаштування Xdebug
+## Xdebug Configuration
 
 ### PhpStorm / IntelliJ IDEA
 
@@ -199,20 +199,20 @@ docker compose -f compose.yaml -f compose.macos.yaml up -d
    - Xdebug port: `9003`
 
 3. **Enable listening**
-   - Клікнути на іконку телефону в тулбарі
+   - Click on phone icon in toolbar
 
-4. **Запустити Xdebug**
+4. **Start Xdebug**
 ```bash
-# В .env.docker.local встановити:
+# In .env.docker.local set:
 XDEBUG_MODE=develop,debug
 
-# Перезапустити контейнер
+# Restart container
 docker compose restart php
 ```
 
 ### VS Code
 
-Додати в `.vscode/launch.json`:
+Add to `.vscode/launch.json`:
 ```json
 {
   "version": "0.2.0",
@@ -233,52 +233,52 @@ docker compose restart php
 ## Performance Tips
 
 ### macOS
-1. Використовуйте `compose.macos.yaml`
-2. Vendor та var в named volumes (вже налаштовано)
-3. Розгляньте VirtioFS в Docker Desktop settings
+1. Use `compose.macos.yaml`
+2. Vendor and var in named volumes (already configured)
+3. Consider VirtioFS in Docker Desktop settings
 
-### Загальні
-1. Виключайте Xdebug коли не користуєтесь: `XDEBUG_MODE=off`
-2. Обмежте ресурси в Docker Desktop (4GB RAM, 2 CPU зазвичай достатньо)
-3. Періодично чистіть: `docker system prune -a`
+### General
+1. Disable Xdebug when not in use: `XDEBUG_MODE=off`
+2. Limit resources in Docker Desktop (4GB RAM, 2 CPU usually sufficient)
+3. Periodically clean up: `docker system prune -a`
 
 ## Troubleshooting
 
-### Порти зайняті
+### Ports Already in Use
 ```bash
-# Змініть порти в .env.docker.local
+# Change ports in .env.docker.local
 NGINX_PORT=8029
 MYSQL_PORT=3328
 ```
 
-### Permission denied (macOS/Linux)
+### Permission Denied (macOS/Linux)
 ```bash
-# Додайте свого user в www-data group (Linux)
+# Add your user to www-data group (Linux)
 sudo usermod -aG www-data $USER
 
-# Або змініть права
+# Or change permissions
 docker compose exec php chown -R www-data:www-data /var/www/html/var
 ```
 
-### MySQL connection refused
+### MySQL Connection Refused
 ```bash
-# Дочекайтеся health check
+# Wait for health check
 docker compose ps
 
-# Або подивіться логи
+# Or view logs
 docker compose logs mysql
 ```
 
-### Повільна робота на macOS
+### Slow Performance on macOS
 ```bash
-# Переконайтесь що використовуєте compose.macos.yaml
+# Make sure you're using compose.macos.yaml
 docker compose -f compose.yaml -f compose.macos.yaml up -d
 
-# Перевірте що vendor в named volume
+# Check that vendor is in named volume
 docker compose exec php ls -la /var/www/html/vendor
 ```
 
-### Очистити все і почати спочатку
+### Clean Everything and Start Fresh
 ```bash
 docker compose down -v
 docker volume prune
@@ -289,7 +289,7 @@ docker compose exec php bin/console doctrine:migrations:migrate -n
 
 ## API Testing
 
-### Через curl
+### Via curl
 ```bash
 # Health check
 curl http://localhost:8028/health
@@ -297,23 +297,23 @@ curl http://localhost:8028/health
 # API Docs
 curl http://localhost:8028/api/docs
 
-# Створити рахунок (потрібна автентифікація)
+# Create account (requires authentication)
 curl -X POST http://localhost:8028/api/accounts \
   -H "Content-Type: application/json" \
   -d '{"userId": "user-123", "currency": "USD"}'
 ```
 
-### Через API Platform UI
-Відкрити в браузері: http://localhost:8028/api
+### Via API Platform UI
+Open in browser: http://localhost:8028/api
 
 ## Health Checks
 
-Всі сервіси мають health checks:
+All services have health checks:
 ```bash
-# Перевірити статус
+# Check status
 docker compose ps
 
-# Детальна інформація
+# Detailed information
 docker inspect fintech_php | grep -A 10 Health
 ```
 
@@ -342,18 +342,18 @@ docker run --rm -v fintech_mysql_data:/data -v $(pwd):/backup alpine tar xzf /ba
 
 ## Production Checklist
 
-- [ ] Змінити паролі в `.env.docker.local`
-- [ ] Використовувати `compose.prod.yaml`
-- [ ] Вимкнути Xdebug: `XDEBUG_MODE=off`
-- [ ] Налаштувати HTTPS (reverse proxy)
-- [ ] Закрити порти БД ззовні
-- [ ] Налаштувати backups
-- [ ] Налаштувати моніторинг
-- [ ] Налаштувати логи (ELK stack)
-- [ ] Перевірити security headers
-- [ ] Налаштувати rate limiting
+- [ ] Change passwords in `.env.docker.local`
+- [ ] Use `compose.prod.yaml`
+- [ ] Disable Xdebug: `XDEBUG_MODE=off`
+- [ ] Configure HTTPS (reverse proxy)
+- [ ] Close database ports externally
+- [ ] Configure backups
+- [ ] Configure monitoring
+- [ ] Configure logs (ELK stack)
+- [ ] Check security headers
+- [ ] Configure rate limiting
 
-## Ресурси
+## Resources
 
 - [Docker Compose Docs](https://docs.docker.com/compose/)
 - [Symfony Docker Best Practices](https://symfony.com/doc/current/setup/docker.html)
