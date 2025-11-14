@@ -8,6 +8,7 @@ use App\Account\Application\Command\CreateAccountCommand;
 use App\Account\Application\Handler\CreateAccountHandler;
 use App\Account\Domain\Entity\Account;
 use App\Account\Domain\Repository\AccountRepositoryInterface;
+use App\Account\Domain\ValueObject\Currency;
 use App\Account\Infrastructure\ApiPlatform\Dto\CreateAccountDto;
 
 class CreateAccountStateProcessor implements ProcessorInterface
@@ -26,7 +27,7 @@ class CreateAccountStateProcessor implements ProcessorInterface
             );
         }
 
-        $command = new CreateAccountCommand($data->userId, $data->getCurrency());
+        $command = new CreateAccountCommand($data->userId, Currency::from($data->currency));
 
         $accountId = $this->handler->handle($command);
 

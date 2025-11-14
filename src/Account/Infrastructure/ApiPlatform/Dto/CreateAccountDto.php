@@ -5,7 +5,6 @@ namespace App\Account\Infrastructure\ApiPlatform\Dto;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Post;
 use App\Account\Domain\Entity\Account;
-use App\Account\Domain\ValueObject\Currency;
 use App\Account\Infrastructure\ApiPlatform\StateProcessor\CreateAccountStateProcessor;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -27,9 +26,4 @@ class CreateAccountDto
     #[Assert\NotBlank]
     #[Assert\Choice(choices: ['UAH', 'USD'])]
     public string $currency;
-
-    public function getCurrency(): Currency
-    {
-        return Currency::from($this->currency);
-    }
 }
