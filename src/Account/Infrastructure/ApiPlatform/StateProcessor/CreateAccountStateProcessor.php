@@ -17,7 +17,7 @@ class CreateAccountStateProcessor implements ProcessorInterface
         private AccountRepositoryInterface $accountRepository
     ) {}
 
-    public function process(mixed $data = null, Operation $operation, array $uriVariables = [], array $context = []): Account
+    public function process(mixed $data = null, Operation $operation = null, array $uriVariables = [], array $context = []): Account
     {
         // When deserialize: false, we need to manually get the request body
         $request = $context['request'] ?? null;
