@@ -32,7 +32,6 @@ ehthumbs.db
 Thumbs.db
 
 # Miscellaneous
-.env
 .tmp/ 
 
 ###> symfony/framework-bundle ###
@@ -56,9 +55,6 @@ Thumbs.db
 # Markdown files (keep documentation)
 !*.md
 *.draft.md
-
-# Docker local config
-.env.docker.local
 
 # Backups
 backup*.sql

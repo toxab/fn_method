@@ -65,9 +65,10 @@ info: ## Show platform and configuration info
 .PHONY: setup
 setup: ## Initial project setup
 	@echo -e "$(BLUE)Setting up project...$(NC)"
-	@if [ ! -f .env.docker.local ]; then \
-		cp .env.docker .env.docker.local; \
-		echo "$(GREEN)Created .env.docker.local$(NC)"; \
+	@if [ ! -f .env ]; then \
+		echo -e "$(RED)Error: .env file not found!$(NC)"; \
+		echo -e "Run: make init-env"; \
+		exit 1; \
 	fi
 	@make up
 	@make composer-install
@@ -78,13 +79,41 @@ setup: ## Initial project setup
 .PHONY: setup-macos
 setup-macos: ## Setup with macOS optimizations
 	@echo -e "$(BLUE)Setting up for macOS...$(NC)"
-	@if [ ! -f .env.docker.local ]; then \
-		cp .env.docker .env.docker.local; \
-		echo "MYSQL_PLATFORM=linux/arm64" >> .env.docker.local; \
-		echo "MOUNT_OPTIONS=:delegated" >> .env.docker.local; \
-		echo "$(GREEN)Created .env.docker.local with macOS settings$(NC)"; \
+	@if [ ! -f .env ]; then \
+		make init-env; \
 	fi
 	@make setup
+
+.PHONY: init-env
+init-env: ## Initialize .env file with default values
+	@echo -e "$(BLUE)Creating .env file...$(NC)"
+	@if [ -f .env ]; then \
+		echo -e "$(YELLOW).env already exists, skipping...$(NC)"; \
+	else \
+		echo "###> symfony/framework-bundle ###" > .env; \
+		echo "APP_ENV=dev" >> .env; \
+		echo "APP_SECRET=$$(openssl rand -hex 32)" >> .env; \
+		echo "###< symfony/framework-bundle ###" >> .env; \
+		echo "" >> .env; \
+		echo "###> doctrine/doctrine-bundle ###" >> .env; \
+		echo 'DATABASE_URL="mysql://fintech_user:fintech_pass@mysql:3306/fintech_db?serverVersion=8.0&charset=utf8mb4"' >> .env; \
+		echo "###< doctrine/doctrine-bundle ###" >> .env; \
+		echo "" >> .env; \
+		echo "###> lexik/jwt-authentication-bundle ###" >> .env; \
+		echo "JWT_SECRET_KEY=%kernel.project_dir%/config/jwt/private.pem" >> .env; \
+		echo "JWT_PUBLIC_KEY=%kernel.project_dir%/config/jwt/public.pem" >> .env; \
+		echo "JWT_PASSPHRASE=your_passphrase_here" >> .env; \
+		echo "###< lexik/jwt-authentication-bundle ###" >> .env; \
+		echo "" >> .env; \
+		echo "###> symfony/messenger ###" >> .env; \
+		echo "MESSENGER_TRANSPORT_DSN=doctrine://default?auto_setup=0" >> .env; \
+		echo "###< symfony/messenger ###" >> .env; \
+		echo "" >> .env; \
+		echo "###> symfony/mailer ###" >> .env; \
+		echo "MAILER_DSN=smtp://mailpit:1025" >> .env; \
+		echo "###< symfony/mailer ###" >> .env; \
+		echo -e "$(GREEN).env file created successfully!$(NC)"; \
+	fi
 
 ##@ Docker Control
 
@@ -129,6 +158,15 @@ clean: ## Remove containers and volumes (WARNING: deletes data!)
 .PHONY: bash
 bash: ## Enter PHP container bash
 	@$(DOCKER_PHP) bash
+
+.PHONY: jwt-generate
+jwt-generate: ## Generate JWT keys
+	@echo -e "$(BLUE)Generating JWT keys...$(NC)"
+	@$(DOCKER_PHP) mkdir -p config/jwt
+	@$(DOCKER_PHP) openssl genpkey -out config/jwt/private.pem -aes256 -algorithm rsa -pkeyopt rsa_keygen_bits:4096 -pass pass:your_passphrase_here
+	@$(DOCKER_PHP) openssl pkey -in config/jwt/private.pem -out config/jwt/public.pem -pubout -passin pass:your_passphrase_here
+	@$(DOCKER_PHP) chmod 644 config/jwt/private.pem config/jwt/public.pem
+	@echo -e "$(GREEN)JWT keys generated!$(NC)"
 
 .PHONY: composer-install
 composer-install: ## Install composer dependencies
