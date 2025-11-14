@@ -5,13 +5,10 @@ namespace App\Account\Domain\Entity;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
-use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Account\Domain\ValueObject\Currency;
 use App\Account\Domain\ValueObject\Money;
-use App\Account\Infrastructure\ApiPlatform\Dto\CreateAccountDto;
 use App\Account\Infrastructure\ApiPlatform\Dto\MoneyOperationDto;
-use App\Account\Infrastructure\ApiPlatform\StateProcessor\CreateAccountStateProcessor;
 use App\Account\Infrastructure\ApiPlatform\StateProcessor\DepositMoneyStateProcessor;
 use App\Account\Infrastructure\ApiPlatform\StateProcessor\WithdrawMoneyStateProcessor;
 use App\Account\Infrastructure\ApiPlatform\StateProvider\AccountBalanceStateProvider;
@@ -29,13 +26,6 @@ use Doctrine\ORM\Mapping as ORM;
         new GetCollection(
             uriTemplate: '/users/{userId}/accounts',
             provider: UserAccountsStateProvider::class
-        ),
-        new Post(
-            uriTemplate: '/accounts',
-            input: CreateAccountDto::class,
-            processor: CreateAccountStateProcessor::class,
-            read: false,
-            deserialize: true
         ),
         new Put(
             uriTemplate: '/accounts/{id}/deposit',
