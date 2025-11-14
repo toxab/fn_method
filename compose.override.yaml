@@ -13,10 +13,6 @@ services:
       APP_ENV: dev
       APP_DEBUG: 1
 
-    ports:
-      # Xdebug port
-      - "${XDEBUG_PORT:-9003}:9003"
-
     volumes:
       # Use cached mode for better performance on macOS
       - .:/var/www/html:cached
