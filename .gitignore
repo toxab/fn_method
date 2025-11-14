@@ -53,5 +53,13 @@ Thumbs.db
 /phpunit.xml
 /.phpunit.cache/
 ###< phpunit/phpunit ###
-*.md
-!README.md
+# Markdown files (keep documentation)
+!*.md
+*.draft.md
+
+# Docker local config
+.env.docker.local
+
+# Backups
+backup*.sql
+*.tar.gz
