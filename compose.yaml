@@ -37,7 +37,7 @@ services:
         condition: service_healthy
 
     healthcheck:
-      test: ["CMD", "php-fpm-healthcheck"]
+      test: ["CMD-SHELL", "pidof php-fpm > /dev/null || exit 1"]
       interval: 10s
       timeout: 3s
       retries: 3
@@ -64,7 +64,7 @@ services:
         condition: service_healthy
 
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://localhost:80 || exit 1"]
       interval: 10s
       timeout: 3s
       retries: 3
