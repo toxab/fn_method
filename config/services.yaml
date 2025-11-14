@@ -35,3 +35,9 @@ services:
         class: App\User\Infrastructure\Repository\EventSourcedUserRepository
         arguments:
             $eventStore: '@App\Shared\Infrastructure\EventStore\EventStoreInterface'
+
+    # OpenAPI JWT decorator
+    App\Infrastructure\ApiPlatform\OpenApiJwtDecorator:
+        decorates: 'api_platform.openapi.factory'
+        arguments:
+            $decorated: '@App\Infrastructure\ApiPlatform\OpenApiJwtDecorator.inner'
