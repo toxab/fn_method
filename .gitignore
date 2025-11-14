@@ -59,3 +59,7 @@ Thumbs.db
 # Backups
 backup*.sql
 *.tar.gz
+
+# PhpStorm compatibility symlinks
+docker-compose.yaml
+docker-compose.override.yml
