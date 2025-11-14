@@ -1,16 +1,19 @@
 # Fintech DDD Project - Docker Management
 # Usage: make <target>
-#
+
+# Force bash shell for proper color output on all platforms
+SHELL := /bin/bash
+
 # Platform detection
 UNAME_S := $(shell uname -s)
 UNAME_M := $(shell uname -m)
 
-# Color output
-BLUE := \033[0;34m
-GREEN := \033[0;32m
-YELLOW := \033[0;33m
-RED := \033[0;31m
-NC := \033[0m # No Color
+# Color output (use with echo -e for proper rendering)
+BLUE := \\033[0;34m
+GREEN := \\033[0;32m
+YELLOW := \\033[0;33m
+RED := \\033[0;31m
+NC := \\033[0m # No Color
 
 # Docker Compose files based on platform
 ifeq ($(UNAME_S),Darwin)
@@ -40,20 +43,20 @@ DOCKER_MYSQL := $(DOCKER_COMPOSE) exec mysql
 
 .PHONY: help
 help: ## Display this help message
-	@echo "$(BLUE)Fintech DDD Project - Docker Management$(NC)"
-	@echo "$(YELLOW)Platform: $(PLATFORM_MSG)$(NC)"
-	@echo ""
+	@echo -e "$(BLUE)Fintech DDD Project - Docker Management$(NC)"
+	@echo -e "$(YELLOW)Platform: $(PLATFORM_MSG)$(NC)"
+	@echo -e ""
 	@awk 'BEGIN {FS = ":.*##"; printf "Usage:\n  make $(GREEN)<target>$(NC)\n"} /^[a-zA-Z_0-9-]+:.*?##/ { printf "  $(GREEN)%-20s$(NC) %s\n", $$1, $$2 } /^##@/ { printf "\n$(BLUE)%s$(NC)\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
 
 .PHONY: info
 info: ## Show platform and configuration info
-	@echo "$(BLUE)Platform Information:$(NC)"
-	@echo "  OS: $(UNAME_S)"
-	@echo "  Architecture: $(UNAME_M)"
-	@echo "  Platform: $(PLATFORM_MSG)"
-	@echo "  Compose files: $(COMPOSE_FILES)"
-	@echo ""
-	@echo "$(BLUE)Docker Version:$(NC)"
+	@echo -e "$(BLUE)Platform Information:$(NC)"
+	@echo -e "  OS: $(UNAME_S)"
+	@echo -e "  Architecture: $(UNAME_M)"
+	@echo -e "  Platform: $(PLATFORM_MSG)"
+	@echo -e "  Compose files: $(COMPOSE_FILES)"
+	@echo -e ""
+	@echo -e "$(BLUE)Docker Version:$(NC)"
 	@docker --version
 	@docker compose version
 
@@ -61,7 +64,7 @@ info: ## Show platform and configuration info
 
 .PHONY: setup
 setup: ## Initial project setup
-	@echo "$(BLUE)Setting up project...$(NC)"
+	@echo -e "$(BLUE)Setting up project...$(NC)"
 	@if [ ! -f .env.docker.local ]; then \
 		cp .env.docker .env.docker.local; \
 		echo "$(GREEN)Created .env.docker.local$(NC)"; \
@@ -69,12 +72,12 @@ setup: ## Initial project setup
 	@make up
 	@make composer-install
 	@make migrate
-	@echo "$(GREEN)Setup complete!$(NC)"
+	@echo -e "$(GREEN)Setup complete!$(NC)"
 	@make info-urls
 
 .PHONY: setup-macos
 setup-macos: ## Setup with macOS optimizations
-	@echo "$(BLUE)Setting up for macOS...$(NC)"
+	@echo -e "$(BLUE)Setting up for macOS...$(NC)"
 	@if [ ! -f .env.docker.local ]; then \
 		cp .env.docker .env.docker.local; \
 		echo "MYSQL_PLATFORM=linux/arm64" >> .env.docker.local; \
@@ -87,25 +90,25 @@ setup-macos: ## Setup with macOS optimizations
 
 .PHONY: up
 up: ## Start all containers
-	@echo "$(BLUE)Starting containers...$(NC)"
+	@echo -e "$(BLUE)Starting containers...$(NC)"
 	@$(DOCKER_COMPOSE) up -d
-	@echo "$(GREEN)Containers started!$(NC)"
+	@echo -e "$(GREEN)Containers started!$(NC)"
 	@make ps
 
 .PHONY: down
 down: ## Stop all containers
-	@echo "$(YELLOW)Stopping containers...$(NC)"
+	@echo -e "$(YELLOW)Stopping containers...$(NC)"
 	@$(DOCKER_COMPOSE) down
-	@echo "$(GREEN)Containers stopped!$(NC)"
+	@echo -e "$(GREEN)Containers stopped!$(NC)"
 
 .PHONY: restart
 restart: down up ## Restart all containers
 
 .PHONY: rebuild
 rebuild: ## Rebuild and restart containers
-	@echo "$(BLUE)Rebuilding containers...$(NC)"
+	@echo -e "$(BLUE)Rebuilding containers...$(NC)"
 	@$(DOCKER_COMPOSE) up -d --build
-	@echo "$(GREEN)Rebuild complete!$(NC)"
+	@echo -e "$(GREEN)Rebuild complete!$(NC)"
 
 .PHONY: ps
 ps: ## Show container status
@@ -117,9 +120,9 @@ logs: ## Show logs (use: make logs SERVICE=php)
 
 .PHONY: clean
 clean: ## Remove containers and volumes (WARNING: deletes data!)
-	@echo "$(RED)This will remove all containers and data. Continue? [y/N]$(NC)" && read ans && [ $${ans:-N} = y ]
+	@echo -e "$(RED)This will remove all containers and data. Continue? [y/N]$(NC)" && read ans && [ $${ans:-N} = y ]
 	@$(DOCKER_COMPOSE) down -v
-	@echo "$(GREEN)Cleanup complete!$(NC)"
+	@echo -e "$(GREEN)Cleanup complete!$(NC)"
 
 ##@ PHP/Symfony
 
@@ -129,9 +132,9 @@ bash: ## Enter PHP container bash
 
 .PHONY: composer-install
 composer-install: ## Install composer dependencies
-	@echo "$(BLUE)Installing composer dependencies...$(NC)"
+	@echo -e "$(BLUE)Installing composer dependencies...$(NC)"
 	@$(DOCKER_PHP) composer install
-	@echo "$(GREEN)Composer install complete!$(NC)"
+	@echo -e "$(GREEN)Composer install complete!$(NC)"
 
 .PHONY: composer-update
 composer-update: ## Update composer dependencies
@@ -148,15 +151,15 @@ sf: ## Run Symfony console command (use: make sf CMD="list")
 .PHONY: cache-clear
 cache-clear: ## Clear Symfony cache
 	@$(DOCKER_PHP) bin/console cache:clear
-	@echo "$(GREEN)Cache cleared!$(NC)"
+	@echo -e "$(GREEN)Cache cleared!$(NC)"
 
 ##@ Database
 
 .PHONY: migrate
 migrate: ## Run database migrations
-	@echo "$(BLUE)Running migrations...$(NC)"
+	@echo -e "$(BLUE)Running migrations...$(NC)"
 	@$(DOCKER_PHP) bin/console doctrine:migrations:migrate -n
-	@echo "$(GREEN)Migrations complete!$(NC)"
+	@echo -e "$(GREEN)Migrations complete!$(NC)"
 
 .PHONY: migration-create
 migration-create: ## Create new migration
@@ -183,23 +186,23 @@ mysql-root: ## Enter MySQL CLI as root
 
 .PHONY: db-backup
 db-backup: ## Backup database to backup.sql
-	@echo "$(BLUE)Backing up database...$(NC)"
+	@echo -e "$(BLUE)Backing up database...$(NC)"
 	@$(DOCKER_MYSQL) mysqldump -u root -proot fintech_db > backup_$$(date +%Y%m%d_%H%M%S).sql
-	@echo "$(GREEN)Backup complete!$(NC)"
+	@echo -e "$(GREEN)Backup complete!$(NC)"
 
 .PHONY: db-restore
 db-restore: ## Restore database from backup.sql
-	@echo "$(YELLOW)Restoring database from backup.sql...$(NC)"
+	@echo -e "$(YELLOW)Restoring database from backup.sql...$(NC)"
 	@$(DOCKER_COMPOSE) exec -T mysql mysql -u root -proot fintech_db < backup.sql
-	@echo "$(GREEN)Restore complete!$(NC)"
+	@echo -e "$(GREEN)Restore complete!$(NC)"
 
 ##@ Testing
 
 .PHONY: test
 test: ## Run all tests
-	@echo "$(BLUE)Running tests...$(NC)"
+	@echo -e "$(BLUE)Running tests...$(NC)"
 	@$(DOCKER_PHP) bin/phpunit
-	@echo "$(GREEN)Tests complete!$(NC)"
+	@echo -e "$(GREEN)Tests complete!$(NC)"
 
 .PHONY: test-unit
 test-unit: ## Run unit tests
@@ -217,7 +220,7 @@ test-coverage: ## Run tests with coverage
 
 .PHONY: es-test
 es-test: ## Test Event Sourcing implementation
-	@echo "$(BLUE)Testing Event Sourcing...$(NC)"
+	@echo -e "$(BLUE)Testing Event Sourcing...$(NC)"
 	@$(DOCKER_PHP) bin/console app:test-event-sourcing
 
 .PHONY: user-create
@@ -254,7 +257,7 @@ phpstan: ## Run PHPStan static analysis
 
 .PHONY: health
 health: ## Check services health
-	@echo "$(BLUE)Services Health Status:$(NC)"
+	@echo -e "$(BLUE)Services Health Status:$(NC)"
 	@$(DOCKER_COMPOSE) ps
 
 .PHONY: top
@@ -269,43 +272,43 @@ stats: ## Show container resource usage
 
 .PHONY: info-urls
 info-urls: ## Show all service URLs
-	@echo "$(BLUE)Service URLs:$(NC)"
-	@echo "  $(GREEN)API:$(NC)          http://localhost:8028"
-	@echo "  $(GREEN)API Docs:$(NC)     http://localhost:8028/api"
-	@echo "  $(GREEN)Adminer:$(NC)      http://localhost:8080"
-	@echo "  $(GREEN)Mailpit:$(NC)      http://localhost:8025"
-	@echo ""
-	@echo "$(BLUE)Database Connection:$(NC)"
-	@echo "  Host:     localhost"
-	@echo "  Port:     3327"
-	@echo "  Database: fintech_db"
-	@echo "  User:     fintech_user"
-	@echo "  Password: fintech_pass"
+	@echo -e "$(BLUE)Service URLs:$(NC)"
+	@echo -e "  $(GREEN)API:$(NC)          http://localhost:8028"
+	@echo -e "  $(GREEN)API Docs:$(NC)     http://localhost:8028/api"
+	@echo -e "  $(GREEN)Adminer:$(NC)      http://localhost:8080"
+	@echo -e "  $(GREEN)Mailpit:$(NC)      http://localhost:8025"
+	@echo -e ""
+	@echo -e "$(BLUE)Database Connection:$(NC)"
+	@echo -e "  Host:     localhost"
+	@echo -e "  Port:     3327"
+	@echo -e "  Database: fintech_db"
+	@echo -e "  User:     fintech_user"
+	@echo -e "  Password: fintech_pass"
 
 .PHONY: info-platform
 info-platform: ## Show platform-specific information
-	@echo "$(BLUE)Platform: $(PLATFORM_MSG)$(NC)"
-	@echo ""
-	@echo "Compose files:"
-	@echo "  $(COMPOSE_FILES)"
-	@echo ""
-	@echo "Recommendations:"
+	@echo -e "$(BLUE)Platform: $(PLATFORM_MSG)$(NC)"
+	@echo -e ""
+	@echo -e "Compose files:"
+	@echo -e "  $(COMPOSE_FILES)"
+	@echo -e ""
+	@echo -e "Recommendations:"
 ifeq ($(UNAME_S),Darwin)
-	@echo "  - Use 'make setup-macos' for initial setup"
-	@echo "  - Vendor directory is in named volume for performance"
-	@echo "  - Using delegated mount option for better I/O"
+	@echo -e "  - Use 'make setup-macos' for initial setup"
+	@echo -e "  - Vendor directory is in named volume for performance"
+	@echo -e "  - Using delegated mount option for better I/O"
 else
-	@echo "  - Use 'make setup' for initial setup"
-	@echo "  - Standard volume mounts for best performance"
+	@echo -e "  - Use 'make setup' for initial setup"
+	@echo -e "  - Standard volume mounts for best performance"
 endif
 
 ##@ Production
 
 .PHONY: prod-up
 prod-up: ## Start in production mode
-	@echo "$(YELLOW)Starting in PRODUCTION mode...$(NC)"
+	@echo -e "$(YELLOW)Starting in PRODUCTION mode...$(NC)"
 	@docker compose -f compose.yaml -f compose.prod.yaml up -d
-	@echo "$(GREEN)Production containers started!$(NC)"
+	@echo -e "$(GREEN)Production containers started!$(NC)"
 
 .PHONY: prod-down
 prod-down: ## Stop production containers
