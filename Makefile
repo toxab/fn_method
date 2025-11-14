@@ -21,16 +21,16 @@ ifeq ($(UNAME_S),Darwin)
 	ifeq ($(UNAME_M),arm64)
 		# Apple Silicon
 		COMPOSE_FILES := -f compose.yaml -f compose.macos.yaml
-		PLATFORM_MSG := "Apple Silicon (M1/M2/M3)"
+		PLATFORM_MSG := Apple Silicon (M1/M2/M3)
 	else
 		# Intel Mac
 		COMPOSE_FILES := -f compose.yaml -f compose.macos.yaml
-		PLATFORM_MSG := "macOS Intel"
+		PLATFORM_MSG := macOS Intel
 	endif
 else
 	# Linux/WSL
 	COMPOSE_FILES := -f compose.yaml
-	PLATFORM_MSG := "Linux/WSL"
+	PLATFORM_MSG := Linux/WSL
 endif
 
 DOCKER_COMPOSE := docker compose $(COMPOSE_FILES)
