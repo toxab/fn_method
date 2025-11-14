@@ -112,6 +112,10 @@ init-env: ## Initialize .env file with default values
 		echo "###> symfony/mailer ###" >> .env; \
 		echo "MAILER_DSN=smtp://mailpit:1025" >> .env; \
 		echo "###< symfony/mailer ###" >> .env; \
+		echo "" >> .env; \
+		echo "###> nelmio/cors-bundle ###" >> .env; \
+		echo "CORS_ALLOW_ORIGIN='^https?://(localhost|127\.0\.0\.1)(:[0-9]+)?\$$'" >> .env; \
+		echo "###< nelmio/cors-bundle ###" >> .env; \
 		echo -e "$(GREEN).env file created successfully!$(NC)"; \
 	fi
 
