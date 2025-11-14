@@ -12,11 +12,8 @@ services:
     volumes:
       - .:/var/www/html:delegated
       - ./docker/php/php.ini:/usr/local/etc/php/php.ini:ro
-      # Use named volumes for better performance
-      - composer_cache:/var/www/html/vendor
+      # Use named volume only for var (cache/logs)
       - symfony_var:/var/www/html/var
-      - symfony_cache:/var/www/html/var/cache
-      - symfony_logs:/var/www/html/var/log
 
     environment:
       # macOS-specific Xdebug settings
@@ -38,11 +35,5 @@ services:
       MYSQL_INNODB_BUFFER_POOL_SIZE: 128M
 
 volumes:
-  composer_cache:
-    driver: local
   symfony_var:
-    driver: local
-  symfony_cache:
-    driver: local
-  symfony_logs:
     driver: local

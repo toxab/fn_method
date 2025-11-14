@@ -18,8 +18,7 @@ services:
       # Different mount options for better performance on macOS
       - .:/var/www/html${MOUNT_OPTIONS:-}
       - ./docker/php/php.ini:/usr/local/etc/php/php.ini:ro
-      # Exclude vendor for performance (use named volume)
-      - composer_cache:/var/www/html/vendor
+      # Use named volume only for var (cache/logs) - keep vendor in bind mount
       - symfony_var:/var/www/html/var
 
     environment:
@@ -189,9 +188,6 @@ volumes:
     driver: local
 
   redis_data:
-    driver: local
-
-  composer_cache:
     driver: local
 
   symfony_var:
