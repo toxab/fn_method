@@ -6,13 +6,14 @@ Educational project demonstrating **Domain-Driven Design (DDD)**, **CQRS**, **Ev
 [![Symfony Version](https://img.shields.io/badge/Symfony-7.0-green)](https://symfony.com/)
 [![License](https://img.shields.io/badge/license-MIT-orange)](LICENSE)
 
+> **📚 For detailed architecture documentation and DDD pattern explanations, see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)**
+
 ---
 
 ## 📚 Table of Contents
 
 - [Quick Start](#-quick-start)
 - [Architecture Overview](#-architecture-overview)
-- [DDD Patterns](#-ddd-patterns-implemented)
 - [Project Structure](#-project-structure)
 - [API Endpoints](#-api-endpoints)
 - [Development](#-development)
@@ -148,226 +149,15 @@ This project implements a clean architecture following DDD principles:
 ✅ **Event Sourcing**: State stored as sequence of events
 ✅ **Bounded Contexts**: Logically separated subsystems
 
----
-
-## 📦 DDD Patterns Implemented
-
-### 1. Bounded Contexts
+### Bounded Contexts
 
 The system is divided into 3 bounded contexts:
 
-#### **Account Context** (`src/Account/`)
-Manages financial accounts and money operations.
+- **Account Context** (`src/Account/`) - Manages financial accounts and money operations
+- **User Context** (`src/User/`) - Manages users and authentication
+- **Shared Context** (`src/Shared/`) - Common infrastructure (Event Store, Domain events)
 
-```php
-Account/
-├── Domain/              # Business logic
-│   ├── Entity/Account.php
-│   ├── ValueObject/
-│   │   ├── Money.php
-│   │   └── Currency.php
-│   └── Repository/
-├── Application/         # Use cases
-│   ├── Command/
-│   └── Handler/
-└── Infrastructure/      # Technical details
-    ├── Repository/
-    └── ApiPlatform/
-```
-
-**Responsibilities:**
-- Account creation
-- Deposits & withdrawals
-- Balance inquiries
-
-#### **User Context** (`src/User/`)
-Manages users and authentication.
-
-**Responsibilities:**
-- User registration
-- JWT authentication
-- User management
-
-#### **Shared Context** (`src/Shared/`)
-Common infrastructure shared across contexts.
-
-**Responsibilities:**
-- Event Store for Event Sourcing
-- Domain event interfaces
-
-### 2. Aggregates
-
-**Account Aggregate** is the core business entity:
-
-```php
-class Account  // Aggregate Root
-{
-    private string $id;           // Aggregate ID
-    private string $userId;
-    private Currency $currency;   // Value Object
-    private string $balance;
-
-    // Business invariants enforced
-    public function deposit(Money $amount): void
-    {
-        // Validates currency match
-        if (!$amount->getCurrency()->equals($this->currency)) {
-            throw new \InvalidArgumentException('Currency mismatch');
-        }
-
-        $this->balance = bcadd($this->balance, $amount->getAmount(), 2);
-        $this->updatedAt = new \DateTimeImmutable();
-    }
-
-    public function withdraw(Money $amount): void
-    {
-        // Validates sufficient funds
-        if (bccomp($this->balance, $amount->getAmount(), 2) < 0) {
-            throw new \InvalidArgumentException('Insufficient funds');
-        }
-
-        $this->balance = bcsub($this->balance, $amount->getAmount(), 2);
-        $this->updatedAt = new \DateTimeImmutable();
-    }
-}
-```
-
-**Key Characteristics:**
-- ✅ Transactional boundary
-- ✅ Business invariants guaranteed
-- ✅ All changes through Aggregate Root
-- ✅ Identified by unique ID (UUID)
-
-### 3. Value Objects
-
-Immutable objects identified by their values, not identity.
-
-#### **Currency**
-```php
-enum Currency: string
-{
-    case UAH = 'UAH';
-    case USD = 'USD';
-
-    public function equals(Currency $other): bool
-    {
-        return $this->value === $other->value;
-    }
-}
-```
-
-#### **Money**
-```php
-class Money
-{
-    public function __construct(
-        private readonly string $amount,
-        private readonly Currency $currency
-    ) {}
-}
-```
-
-**Benefits:**
-- ✅ Type safety
-- ✅ Prevents mixing currencies
-- ✅ Immutability guarantees
-
-### 4. Repository Pattern
-
-**Domain Interface (Port):**
-```php
-interface AccountRepositoryInterface
-{
-    public function save(Account $account): void;
-    public function findById(string $id): Account;
-}
-```
-
-**Infrastructure Adapter:**
-```php
-class DoctrineAccountRepository implements AccountRepositoryInterface
-{
-    public function save(Account $account): void
-    {
-        $this->entityManager->persist($account);
-        $this->entityManager->flush();
-    }
-}
-```
-
-### 5. CQRS (Command Query Responsibility Segregation)
-
-**Command Side (Write):**
-```php
-class CreateAccountCommand
-{
-    public function __construct(
-        public readonly string $userId,
-        public readonly Currency $currency
-    ) {}
-}
-
-class CreateAccountHandler
-{
-    public function handle(CreateAccountCommand $command): string
-    {
-        $account = new Account(
-            id: Uuid::uuid4()->toString(),
-            userId: $command->userId,
-            currency: $command->currency
-        );
-
-        $this->repository->save($account);
-        return $account->getId();
-    }
-}
-```
-
-**Query Side (Read):**
-```php
-class AccountBalanceStateProvider implements ProviderInterface
-{
-    public function provide(Operation $operation, ...): AccountBalanceResponse
-    {
-        $account = $this->repository->findById($id);
-
-        return new AccountBalanceResponse(
-            accountId: $account->getId(),
-            balance: $account->getBalance()->getAmount(),
-            currency: $account->getCurrency()->value,
-            lastUpdated: $account->getUpdatedAt()
-        );
-    }
-}
-```
-
-### 6. Event Sourcing
-
-State is stored as a sequence of events:
-
-```php
-interface EventStoreInterface
-{
-    public function append(string $aggregateId, DomainEvent $event): void;
-    public function getEventsForAggregate(string $aggregateId): array;
-}
-
-// Example: Account Created Event
-class AccountCreatedEvent
-{
-    public function __construct(
-        public readonly string $accountId,
-        public readonly string $userId,
-        public readonly string $currency,
-        public readonly \DateTimeImmutable $occurredAt
-    ) {}
-}
-```
-
-**Benefits:**
-- ✅ Complete audit trail
-- ✅ State reconstruction at any point in time
-- ✅ Event replay for debugging
+> **📖 Learn More**: For detailed explanations of DDD patterns, CQRS implementation, Event Sourcing, and code examples, see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 
 ---
 
@@ -376,35 +166,14 @@ class AccountCreatedEvent
 ```
 fn_method/
 ├── config/                    # Symfony configuration
-│   ├── packages/
-│   │   ├── api_platform.yaml  # API Platform + Swagger
-│   │   ├── doctrine.yaml      # ORM configuration
-│   │   └── security.yaml      # JWT authentication
-│   ├── routes/
+│   ├── packages/              # API Platform, Doctrine, Security
 │   └── services.yaml          # DI container
 │
 ├── src/
 │   ├── Account/              # Account Bounded Context
-│   │   ├── Domain/
-│   │   │   ├── Entity/Account.php
-│   │   │   ├── ValueObject/
-│   │   │   │   ├── Currency.php
-│   │   │   │   └── Money.php
-│   │   │   └── Repository/
-│   │   │       └── AccountRepositoryInterface.php
-│   │   ├── Application/
-│   │   │   ├── Command/
-│   │   │   │   ├── CreateAccountCommand.php
-│   │   │   │   ├── DepositMoneyCommand.php
-│   │   │   │   └── WithdrawMoneyCommand.php
-│   │   │   └── Handler/
-│   │   └── Infrastructure/
-│   │       ├── Repository/
-│   │       │   └── DoctrineAccountRepository.php
-│   │       └── ApiPlatform/
-│   │           ├── Dto/CreateAccountDto.php
-│   │           ├── StateProcessor/
-│   │           └── StateProvider/
+│   │   ├── Domain/           # Business logic (Entities, Value Objects, Interfaces)
+│   │   ├── Application/      # Use cases (Commands, Handlers)
+│   │   └── Infrastructure/   # Technical implementation (Repositories, API)
 │   │
 │   ├── User/                 # User Bounded Context
 │   │   ├── Domain/
@@ -412,21 +181,16 @@ fn_method/
 │   │   └── Infrastructure/
 │   │
 │   ├── Shared/               # Shared Kernel
-│   │   └── Infrastructure/
-│   │       └── EventStore/
+│   │   └── Infrastructure/EventStore/
 │   │
-│   └── Infrastructure/       # Cross-cutting concerns
-│       └── ApiPlatform/
-│           └── OpenApiJwtDecorator.php
+│   └── DataFixtures/         # Demo data
 │
 ├── docker/                   # Docker configuration
 ├── migrations/               # Database migrations
-├── tests/                    # Tests
+├── tests/                    # Unit & Integration tests
 ├── Dockerfile               # PHP 8.3 + Xdebug
-├── compose.yaml             # Main Docker Compose
-├── compose.macos.yaml       # macOS optimizations
-├── Makefile                 # Automation commands
-└── README.md
+├── compose.yaml             # Docker Compose
+└── Makefile                 # Automation commands
 ```
 
 ---
@@ -533,6 +297,8 @@ make composer-install          # Install dependencies
 ```bash
 make migrate                   # Run migrations
 make db-reset                  # Reset database
+make fixtures                  # Load demo data
+make db-seed                   # Run migrations + fixtures
 make mysql                     # Enter MySQL CLI
 make db-backup                 # Backup database
 ```
@@ -548,6 +314,7 @@ make jwt-generate              # Generate JWT keys
 make test                      # Run all tests
 make test-unit                 # Unit tests only
 make test-integration          # Integration tests only
+make test-coverage             # Coverage report
 ```
 
 ### Platform Support
@@ -603,13 +370,12 @@ make test-coverage
 tests/
 ├── Unit/
 │   ├── Account/
-│   │   ├── Domain/
-│   │   │   ├── Entity/AccountTest.php
-│   │   │   └── ValueObject/MoneyTest.php
-│   │   └── Application/
+│   │   ├── Domain/          # Domain logic tests
+│   │   └── Application/     # Use case tests
+│   └── User/
 └── Integration/
     └── Account/
-        └── Repository/
+        └── Repository/      # Database integration tests
 ```
 
 ---
@@ -634,9 +400,9 @@ tests/
 
 ## 📖 Learning Resources
 
-This project demonstrates:
+This project demonstrates key software architecture patterns:
 
-### Domain-Driven Design
+**Domain-Driven Design**
 - Ubiquitous Language
 - Bounded Contexts
 - Aggregates & Entities
@@ -644,26 +410,27 @@ This project demonstrates:
 - Domain Events
 - Repository Pattern
 
-### CQRS
+**CQRS (Command Query Responsibility Segregation)**
 - Command/Query separation
 - Different models for reads/writes
-- State Processors (Command)
-- State Providers (Query)
+- State Processors & Providers
 
-### Event Sourcing
+**Event Sourcing**
 - Event Store implementation
 - Event replay capability
-- Audit trail
+- Complete audit trail
 
-### Hexagonal Architecture
+**Hexagonal Architecture**
 - Ports & Adapters pattern
 - Infrastructure independence
 - Testability through abstraction
 
-### Clean Architecture
+**Clean Architecture**
 - Dependency Rule
 - Layered structure
 - Separation of Concerns
+
+> **📚 Detailed Documentation**: For in-depth explanations, code examples, and implementation details of all patterns, see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 
 ---
 
