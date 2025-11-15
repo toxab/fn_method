@@ -59,6 +59,37 @@ docker compose exec php bin/console doctrine:migrations:migrate
 
 # 4. Generate JWT keys
 docker compose exec php bin/console lexik:jwt:generate-keypair
+
+# 5. Load demo data (optional)
+docker compose exec php bin/console doctrine:fixtures:load
+```
+
+### Load Demo Data
+
+To quickly start with pre-configured users and accounts:
+
+```bash
+make fixtures
+# or
+make db-seed  # migrations + fixtures
+```
+
+**Demo Users Created:**
+
+| Role | Email | Password | Accounts |
+|------|-------|----------|----------|
+| **Admin** | admin@fintech.com | admin123 | UAH: 50,000.00<br>USD: 1,000.00 |
+| **User** | user@fintech.com | user123 | UAH: 10,000.00<br>USD: 250.00 |
+| **User** | another@fintech.com | another123 | UAH: 5,000.00 |
+
+**Quick Test:**
+```bash
+# Get JWT token
+curl -X POST http://localhost:8028/api/login_check \
+  -H "Content-Type: application/json" \
+  -d '{"username": "admin@fintech.com", "password": "admin123"}'
+
+# Use token in Swagger UI or API calls
 ```
 
 ---

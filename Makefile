@@ -218,6 +218,20 @@ db-drop: ## Drop database (WARNING!)
 .PHONY: db-reset
 db-reset: db-drop db-create migrate ## Reset database
 
+.PHONY: fixtures
+fixtures: ## Load data fixtures (demo users & accounts)
+	@echo -e "$(BLUE)Loading fixtures...$(NC)"
+	@$(DOCKER_PHP) bin/console doctrine:fixtures:load -n
+	@echo -e "$(GREEN)Fixtures loaded!$(NC)"
+	@echo -e ""
+	@echo -e "$(YELLOW)Demo users:$(NC)"
+	@echo -e "  Admin:   admin@fintech.com   / admin123"
+	@echo -e "  User:    user@fintech.com    / user123"
+	@echo -e "  Another: another@fintech.com / another123"
+
+.PHONY: db-seed
+db-seed: migrate fixtures ## Run migrations and load fixtures
+
 .PHONY: mysql
 mysql: ## Enter MySQL CLI
 	@$(DOCKER_MYSQL) mysql -u fintech_user -pfintech_pass fintech_db
