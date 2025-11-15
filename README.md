@@ -40,8 +40,22 @@ make setup
 That's it! The project will be available at:
 - 🌐 **API**: http://localhost:8028
 - 📚 **Swagger UI**: http://localhost:8028/api/docs
-- 💾 **Adminer**: http://localhost:8080
-- 📧 **Mailpit**: http://localhost:8025
+- 💾 **Adminer** (Database UI): http://localhost:8080
+- 📧 **Mailpit** (Email Testing): http://localhost:8025
+
+### Access Credentials
+
+**Adminer (Database Management)**
+- System: `MySQL`
+- Server: `mysql`
+- Username: `fintech_user`
+- Password: `fintech_pass`
+- Database: `fintech_db`
+
+**Demo Users** (after running `make fixtures`):
+- Admin: `admin@fintech.com` / `admin123`
+- User: `user@fintech.com` / `user123`
+- Another: `another@fintech.com` / `another123`
 
 ### Manual Setup
 
