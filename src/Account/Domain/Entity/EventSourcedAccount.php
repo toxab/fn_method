@@ -5,6 +5,8 @@ namespace App\Account\Domain\Entity;
 use App\Account\Domain\Event\AccountCreatedEvent;
 use App\Account\Domain\Event\MoneyDepositedEvent;
 use App\Account\Domain\Event\MoneyWithdrawnEvent;
+use App\Account\Domain\Exception\CurrencyMismatchException;
+use App\Account\Domain\Exception\InsufficientFundsException;
 use App\Account\Domain\ValueObject\Currency;
 use App\Account\Domain\ValueObject\Money;
 use App\Shared\Domain\Aggregate\AbstractAggregateRoot;
@@ -27,7 +29,7 @@ class EventSourcedAccount extends AbstractAggregateRoot
     public function deposit(Money $amount): void
     {
         if (!$amount->getCurrency()->equals($this->currency)) {
-            throw new \InvalidArgumentException('Currency mismatch');
+            throw CurrencyMismatchException::forOperation($this->currency, $amount->getCurrency());
         }
 
         $newBalance = bcadd($this->balance, $amount->getAmount(), 2);
@@ -37,11 +39,11 @@ class EventSourcedAccount extends AbstractAggregateRoot
     public function withdraw(Money $amount): void
     {
         if (!$amount->getCurrency()->equals($this->currency)) {
-            throw new \InvalidArgumentException('Currency mismatch');
+            throw CurrencyMismatchException::forOperation($this->currency, $amount->getCurrency());
         }
 
         if (bccomp($this->balance, $amount->getAmount(), 2) < 0) {
-            throw new \InvalidArgumentException('Insufficient funds');
+            throw InsufficientFundsException::forWithdrawal($this->balance, $amount->getAmount());
         }
 
         $newBalance = bcsub($this->balance, $amount->getAmount(), 2);

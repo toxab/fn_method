@@ -6,6 +6,8 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Put;
+use App\Account\Domain\Exception\CurrencyMismatchException;
+use App\Account\Domain\Exception\InsufficientFundsException;
 use App\Account\Domain\ValueObject\Currency;
 use App\Account\Domain\ValueObject\Money;
 use App\Account\Infrastructure\ApiPlatform\Dto\MoneyOperationDto;
@@ -103,7 +105,7 @@ class Account
     public function deposit(Money $amount): void
     {
         if (!$amount->getCurrency()->equals($this->currency)) {
-            throw new \InvalidArgumentException('Currency mismatch');
+            throw CurrencyMismatchException::forOperation($this->currency, $amount->getCurrency());
         }
 
         $this->balance = bcadd($this->balance, $amount->getAmount(), 2);
@@ -113,11 +115,11 @@ class Account
     public function withdraw(Money $amount): void
     {
         if (!$amount->getCurrency()->equals($this->currency)) {
-            throw new \InvalidArgumentException('Currency mismatch');
+            throw CurrencyMismatchException::forOperation($this->currency, $amount->getCurrency());
         }
 
         if (bccomp($this->balance, $amount->getAmount(), 2) < 0) {
-            throw new \InvalidArgumentException('Insufficient funds');
+            throw InsufficientFundsException::forWithdrawal($this->balance, $amount->getAmount());
         }
 
         $this->balance = bcsub($this->balance, $amount->getAmount(), 2);
