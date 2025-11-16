@@ -239,20 +239,20 @@ db-restore: ## Restore database from backup.sql
 .PHONY: test
 test: ## Run all tests
 	@echo -e "$(BLUE)Running tests...$(NC)"
-	@$(DOCKER_PHP) bin/phpunit
+	@$(DOCKER_PHP) vendor/bin/phpunit
 	@echo -e "$(GREEN)Tests complete!$(NC)"
 
 .PHONY: test-unit
 test-unit: ## Run unit tests
-	@$(DOCKER_PHP) bin/phpunit --testsuite=unit
+	@$(DOCKER_PHP) vendor/bin/phpunit --testsuite=unit
 
 .PHONY: test-integration
 test-integration: ## Run integration tests
-	@$(DOCKER_PHP) bin/phpunit --testsuite=integration
+	@$(DOCKER_PHP) vendor/bin/phpunit --testsuite=integration
 
 .PHONY: test-coverage
 test-coverage: ## Run tests with coverage
-	@$(DOCKER_PHP) bin/phpunit --coverage-html var/coverage
+	@$(DOCKER_PHP) vendor/bin/phpunit --coverage-html var/coverage
 
 ##@ Event Sourcing
 
