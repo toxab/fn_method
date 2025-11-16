@@ -66,9 +66,8 @@ info: ## Show platform and configuration info
 setup: ## Initial project setup
 	@echo -e "$(BLUE)Setting up project...$(NC)"
 	@if [ ! -f .env ]; then \
-		echo -e "$(RED)Error: .env file not found!$(NC)"; \
-		echo -e "Run: make init-env"; \
-		exit 1; \
+		echo -e "$(YELLOW).env not found, creating from .env.dist...$(NC)"; \
+		make init-env; \
 	fi
 	@make up
 	@make composer-install
@@ -85,38 +84,21 @@ setup-macos: ## Setup with macOS optimizations
 	@make setup
 
 .PHONY: init-env
-init-env: ## Initialize .env file with default values
-	@echo -e "$(BLUE)Creating .env file...$(NC)"
+init-env: ## Initialize .env file from .env.dist
+	@echo -e "$(BLUE)Creating .env file from .env.dist...$(NC)"
 	@if [ -f .env ]; then \
 		echo -e "$(YELLOW).env already exists, skipping...$(NC)"; \
 	else \
-		echo "###> symfony/framework-bundle ###" > .env; \
-		echo "APP_ENV=dev" >> .env; \
-		echo "APP_SECRET=$$(openssl rand -hex 32)" >> .env; \
-		echo "###< symfony/framework-bundle ###" >> .env; \
-		echo "" >> .env; \
-		echo "###> doctrine/doctrine-bundle ###" >> .env; \
-		echo 'DATABASE_URL="mysql://fintech_user:fintech_pass@mysql:3306/fintech_db?serverVersion=8.0&charset=utf8mb4"' >> .env; \
-		echo "###< doctrine/doctrine-bundle ###" >> .env; \
-		echo "" >> .env; \
-		echo "###> lexik/jwt-authentication-bundle ###" >> .env; \
-		echo "JWT_SECRET_KEY=%kernel.project_dir%/config/jwt/private.pem" >> .env; \
-		echo "JWT_PUBLIC_KEY=%kernel.project_dir%/config/jwt/public.pem" >> .env; \
-		echo "JWT_PASSPHRASE=your_passphrase_here" >> .env; \
-		echo "###< lexik/jwt-authentication-bundle ###" >> .env; \
-		echo "" >> .env; \
-		echo "###> symfony/messenger ###" >> .env; \
-		echo "MESSENGER_TRANSPORT_DSN=doctrine://default?auto_setup=0" >> .env; \
-		echo "###< symfony/messenger ###" >> .env; \
-		echo "" >> .env; \
-		echo "###> symfony/mailer ###" >> .env; \
-		echo "MAILER_DSN=smtp://mailpit:1025" >> .env; \
-		echo "###< symfony/mailer ###" >> .env; \
-		echo "" >> .env; \
-		echo "###> nelmio/cors-bundle ###" >> .env; \
-		echo "CORS_ALLOW_ORIGIN='^https?://(localhost|127\.0\.0\.1)(:[0-9]+)?\$$'" >> .env; \
-		echo "###< nelmio/cors-bundle ###" >> .env; \
-		echo -e "$(GREEN).env file created successfully!$(NC)"; \
+		if [ ! -f .env.dist ]; then \
+			echo -e "$(RED)Error: .env.dist file not found!$(NC)"; \
+			exit 1; \
+		fi; \
+		cp .env.dist .env; \
+		RANDOM_SECRET=$$(openssl rand -hex 32); \
+		sed -i.bak "s/change_me_to_random_secret_key_at_least_32_chars/$$RANDOM_SECRET/" .env; \
+		rm -f .env.bak; \
+		echo -e "$(GREEN).env file created successfully from .env.dist!$(NC)"; \
+		echo -e "$(YELLOW)APP_SECRET has been generated automatically.$(NC)"; \
 	fi
 
 ##@ Docker Control
