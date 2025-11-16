@@ -244,11 +244,11 @@ test: ## Run all tests
 
 .PHONY: test-unit
 test-unit: ## Run unit tests
-	@$(DOCKER_PHP) vendor/bin/phpunit --testsuite=unit
+	@$(DOCKER_PHP) vendor/bin/phpunit --testsuite=Unit
 
 .PHONY: test-integration
 test-integration: ## Run integration tests
-	@$(DOCKER_PHP) vendor/bin/phpunit --testsuite=integration
+	@$(DOCKER_PHP) vendor/bin/phpunit --testsuite=Integration
 
 .PHONY: test-coverage
 test-coverage: ## Run tests with coverage
