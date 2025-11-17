@@ -17,7 +17,10 @@ class Transaction
     private string $id;
     
     #[ORM\Column(type: 'string', length: 50)]
-    private string $accountId;
+    private string $fromAccountId;
+    
+    #[ORM\Column(type: 'string', length: 50, nullable: true)]
+    private ?string $toAccountId;
     
     #[ORM\Column(type: 'string', length: 20, enumType: TransactionType::class)]
     private TransactionType $type;
@@ -39,12 +42,14 @@ class Transaction
     
     public function __construct(
         string $id,
-        string $accountId,
+        string $fromAccountId,
+        ?string $toAccountId,
         TransactionType $type,
         Money $amount
     ) {
         $this->id = $id;
-        $this->accountId = $accountId;
+        $this->fromAccountId = $fromAccountId;
+        $this->toAccountId = $toAccountId;
         $this->type = $type;
         $this->amount = $amount->getAmount();
         $this->currency = $amount->getCurrency()->value;
@@ -78,9 +83,14 @@ class Transaction
         return $this->id;
     }
     
-    public function getAccountId(): string
+    public function getFromAccountId(): string
     {
-        return $this->accountId;
+        return $this->fromAccountId;
+    }
+    
+    public function getToAccountId(): ?string
+    {
+        return $this->toAccountId;
     }
     
     public function getType(): TransactionType

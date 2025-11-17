@@ -67,6 +67,7 @@ class TransferMoneySaga
             $transaction = new Transaction(
                 $transactionId,
                 $fromAccountId,
+                $toAccountId,
                 TransactionType::TRANSFER,
                 $amount
             );

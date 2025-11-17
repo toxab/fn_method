@@ -36,8 +36,12 @@ services:
         arguments:
             $eventStore: '@App\Shared\Infrastructure\EventStore\EventStoreInterface'
 
+    App\Transaction\Domain\Repository\TransactionRepositoryInterface:
+      alias: App\Transaction\Infrastructure\Repository\DoctrineTransactionRepository
+
     # OpenAPI JWT decorator
     App\Infrastructure\ApiPlatform\OpenApiJwtDecorator:
         decorates: 'api_platform.openapi.factory'
         arguments:
             $decorated: '@App\Infrastructure\ApiPlatform\OpenApiJwtDecorator.inner'
+
