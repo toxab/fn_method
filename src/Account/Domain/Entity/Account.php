@@ -16,6 +16,7 @@ use App\Account\Infrastructure\ApiPlatform\StateProcessor\DepositMoneyStateProce
 use App\Account\Infrastructure\ApiPlatform\StateProcessor\TransferMoneyStateProcessor;
 use App\Account\Infrastructure\ApiPlatform\StateProcessor\WithdrawMoneyStateProcessor;
 use App\Account\Infrastructure\ApiPlatform\StateProvider\AccountBalanceStateProvider;
+use App\Account\Infrastructure\ApiPlatform\StateProvider\AccountTransactionsStateProvider;
 use App\Account\Infrastructure\ApiPlatform\StateProvider\UserAccountsStateProvider;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -45,6 +46,10 @@ use Doctrine\ORM\Mapping as ORM;
             uriTemplate: '/accounts/{id}/transfer',
             input: TransferMoneyDto::class,
             processor: TransferMoneyStateProcessor::class
+        ),
+        new Get(
+            uriTemplate: '/accounts/{id}/transactions',
+            provider: AccountTransactionsStateProvider::class
         )
     ]
 )]

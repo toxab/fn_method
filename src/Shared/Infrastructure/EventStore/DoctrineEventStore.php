@@ -175,7 +175,7 @@ class DoctrineEventStore implements EventStoreInterface
                         \App\Account\Domain\ValueObject\Currency::from($eventData['currency'])
                     );
                 } elseif ($paramName === 'oldEmail' || $paramName === 'newEmail') {
-                    // Десеріалізація Email VO для UserEmailChangedEvent
+                    // Deserialization of Email VO for UserEmailChangedEvent
                     $args[] = new \App\User\Domain\ValueObject\Email($eventData[$paramName]);
                 } else {
                     $args[] = $eventData[$paramName] ?? null;
