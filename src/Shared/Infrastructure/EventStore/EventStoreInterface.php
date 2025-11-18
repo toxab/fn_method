@@ -2,8 +2,6 @@
 
 namespace App\Shared\Infrastructure\EventStore;
 
-use App\Shared\Domain\Event\DomainEventInterface;
-
 interface EventStoreInterface
 {
     public function saveEvents(string $aggregateId, array $events, int $expectedVersion): void;

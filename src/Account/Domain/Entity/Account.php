@@ -11,9 +11,12 @@ use App\Account\Domain\Exception\InsufficientFundsException;
 use App\Account\Domain\ValueObject\Currency;
 use App\Account\Domain\ValueObject\Money;
 use App\Account\Infrastructure\ApiPlatform\Dto\MoneyOperationDto;
+use App\Account\Infrastructure\ApiPlatform\Dto\TransferMoneyDto;
 use App\Account\Infrastructure\ApiPlatform\StateProcessor\DepositMoneyStateProcessor;
+use App\Account\Infrastructure\ApiPlatform\StateProcessor\TransferMoneyStateProcessor;
 use App\Account\Infrastructure\ApiPlatform\StateProcessor\WithdrawMoneyStateProcessor;
 use App\Account\Infrastructure\ApiPlatform\StateProvider\AccountBalanceStateProvider;
+use App\Account\Infrastructure\ApiPlatform\StateProvider\AccountTransactionsStateProvider;
 use App\Account\Infrastructure\ApiPlatform\StateProvider\UserAccountsStateProvider;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -38,6 +41,15 @@ use Doctrine\ORM\Mapping as ORM;
             uriTemplate: '/accounts/{id}/withdraw',
             input: MoneyOperationDto::class,
             processor: WithdrawMoneyStateProcessor::class
+        ),
+        new Put(
+            uriTemplate: '/accounts/{id}/transfer',
+            input: TransferMoneyDto::class,
+            processor: TransferMoneyStateProcessor::class
+        ),
+        new Get(
+            uriTemplate: '/accounts/{id}/transactions',
+            provider: AccountTransactionsStateProvider::class
         )
     ]
 )]

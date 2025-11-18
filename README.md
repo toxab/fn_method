@@ -255,6 +255,33 @@ Content-Type: application/json
 }
 ```
 
+#### Transfer Money
+Transfer money from one account to another.
+
+```http
+PUT /api/accounts/{fromAccountId}/transfer
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "toAccountId": "account-550e8400-e29b-41d4-a716-446655440002",
+  "amount": "1000.00",
+  "currency": "USD"
+}
+```
+
+#### Response
+```
+{
+  "success": true,
+  "transactionId": "5a9b715d-ea8b-4265-9fa5-fd07e60339fd",
+  "fromAccountId": "account-550e8400-e29b-41d4-a716-446655440000",
+  "toAccountId": "account-550e8400-e29b-41d4-a716-446655440002",
+  "amount": "1000.00",
+  "currency": "USD"
+}
+```
+
 ### Swagger UI
 
 Interactive API documentation available at:

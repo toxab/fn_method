@@ -7,10 +7,13 @@ use App\User\Domain\ValueObject\UserRole;
 use App\Shared\Domain\Aggregate\AbstractAggregateRoot;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use App\User\Domain\Event\UserEmailChangedEvent;
+use App\User\Domain\ValueObject\Email;
+
 
 class EventSourcedUser extends AbstractAggregateRoot implements UserInterface, PasswordAuthenticatedUserInterface
 {
-    private string $email;
+    private Email $email;
     private string $password;
     private UserRole $role;
 
@@ -20,8 +23,21 @@ class EventSourcedUser extends AbstractAggregateRoot implements UserInterface, P
         $user->recordEvent(new UserCreatedEvent($userId, $email, $hashedPassword, $role));
         return $user;
     }
+    
+    public function changeEmail(Email $newEmail): void
+    {
+        if ($this->email->equals($newEmail)) {
+            throw new \DomainException('New email must be different from current email');
+        }
+        
+        $this->recordEvent(new UserEmailChangedEvent(
+            $this->getId(),
+            $this->email,
+            $newEmail
+        ));
+    }
 
-    public function getEmail(): string
+    public function getEmail(): Email
     {
         return $this->email;
     }
@@ -43,7 +59,7 @@ class EventSourcedUser extends AbstractAggregateRoot implements UserInterface, P
 
     public function getUserIdentifier(): string
     {
-        return $this->email;
+        return $this->email->getValue();
     }
 
     public function eraseCredentials(): void
@@ -53,8 +69,13 @@ class EventSourcedUser extends AbstractAggregateRoot implements UserInterface, P
 
     protected function applyUserCreatedEvent(UserCreatedEvent $event): void
     {
-        $this->email = $event->getEmail();
+        $this->email = new Email($event->getEmail());
         $this->password = $event->getHashedPassword();
         $this->role = $event->getRole();
+    }
+    
+    protected function applyUserEmailChangedEvent(UserEmailChangedEvent $event): void
+    {
+        $this->email = $event->getNewEmail();
     }
 }

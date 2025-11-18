@@ -2,6 +2,7 @@ doctrine:
     dbal:
         url: '%env(resolve:DATABASE_URL)%'
         use_savepoints: true
+        schema_filter: ~^(?!event_store)~
     orm:
         auto_generate_proxy_classes: true
         enable_lazy_ghost_objects: true
@@ -22,6 +23,12 @@ doctrine:
                 dir: '%kernel.project_dir%/src/Account/Domain/Entity'
                 prefix: 'App\Account\Domain\Entity'
                 alias: Account
+            Transaction:
+              type: attribute
+              is_bundle: false
+              dir: '%kernel.project_dir%/src/Transaction/Domain/Entity'
+              prefix: 'App\Transaction\Domain\Entity'
+              alias: Transaction
 
 when@prod:
     doctrine:

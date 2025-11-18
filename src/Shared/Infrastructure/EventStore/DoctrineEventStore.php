@@ -47,7 +47,7 @@ class DoctrineEventStore implements EventStoreInterface
     {
         $sql = "
             SELECT event_type, event_data, version, occurred_at
-            FROM " . self::TABLE_NAME . " 
+            FROM " . self::TABLE_NAME . "
             WHERE aggregate_id = :aggregate_id AND version > :version
             ORDER BY version ASC
         ";
@@ -70,7 +70,7 @@ class DoctrineEventStore implements EventStoreInterface
     {
         $sql = "
             SELECT aggregate_id, event_type, event_data, version, occurred_at
-            FROM " . self::TABLE_NAME . " 
+            FROM " . self::TABLE_NAME . "
             ORDER BY id ASC
         ";
         
@@ -88,7 +88,7 @@ class DoctrineEventStore implements EventStoreInterface
     {
         $sql = "
             SELECT aggregate_id, event_type, event_data, version, occurred_at
-            FROM " . self::TABLE_NAME . " 
+            FROM " . self::TABLE_NAME . "
             WHERE event_type = :event_type
             ORDER BY id ASC
         ";
@@ -109,7 +109,7 @@ class DoctrineEventStore implements EventStoreInterface
     private function saveEvent(string $aggregateId, DomainEventInterface $event, int $version): void
     {
         $sql = "
-            INSERT INTO " . self::TABLE_NAME . " 
+            INSERT INTO " . self::TABLE_NAME . "
             (aggregate_id, event_type, event_data, version, occurred_at)
             VALUES (:aggregate_id, :event_type, :event_data, :version, :occurred_at)
         ";
@@ -131,8 +131,8 @@ class DoctrineEventStore implements EventStoreInterface
     private function getAggregateVersion(string $aggregateId): int
     {
         $sql = "
-            SELECT MAX(version) as max_version 
-            FROM " . self::TABLE_NAME . " 
+            SELECT MAX(version) as max_version
+            FROM " . self::TABLE_NAME . "
             WHERE aggregate_id = :aggregate_id
         ";
         
@@ -174,6 +174,9 @@ class DoctrineEventStore implements EventStoreInterface
                         $eventData['amount'],
                         \App\Account\Domain\ValueObject\Currency::from($eventData['currency'])
                     );
+                } elseif ($paramName === 'oldEmail' || $paramName === 'newEmail') {
+                    // Deserialization of Email VO for UserEmailChangedEvent
+                    $args[] = new \App\User\Domain\ValueObject\Email($eventData[$paramName]);
                 } else {
                     $args[] = $eventData[$paramName] ?? null;
                 }
